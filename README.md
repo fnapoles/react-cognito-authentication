@@ -17,7 +17,7 @@ This repository contains a React web application template to authenticate using 
 - Run npm install
 - Create the AWS User Pool
 - Create .env file in the root of the project folder
-    REACT_APP_REGION=XX-XXXX-#
-    REACT_APP_USER_POOL_ID=XX-XXXX-#_XXXXXXXXX
-    REACT_APP_USER_POOL_WEB_CLIENT_ID=xx##x#xx##xx##xxxx####xx#x
+    * REACT_APP_REGION=XX-XXXX-#
+    * REACT_APP_USER_POOL_ID=XX-XXXX-#_XXXXXXXXX
+    * REACT_APP_USER_POOL_WEB_CLIENT_ID=xx##x#xx##xx##xxxx####xx#x
 - npm run
