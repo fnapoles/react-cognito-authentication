@@ -68,13 +68,15 @@ export default function Navbar(props) {
   };
 
   const handleLogout = () => {
-    Auth.signOut()
-      .then(() => {
-        props.onLogout(false);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    props.onLogout(true);
+    // Auth.signOut()
+    //   .then(() => {
+    //     props.onLogout(false);
+    //   })
+    //   .catch((err) => {
+    //     props.onLogout(true);
+    //     console.error(err);
+    //   });
   };
 
   const menuId = "primary-search-account-menu";

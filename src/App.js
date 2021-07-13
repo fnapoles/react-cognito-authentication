@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import Message from "./components/ui/Message";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -49,8 +50,11 @@ const useStyles = makeStyles({
 function App() {
   const classes = useStyles();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(Auth.user ? true : false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessageOpen, setSuccessMessageOpen] = useState(false);
 
   useEffect(() => {
     Amplify.configure({
@@ -62,20 +66,58 @@ function App() {
     });
   });
 
+  // useEffect(() => {
+  //   async function getUser() {
+  //     if (isLoggedIn) {
+  //       let tempUser = await Auth.currentAuthenticatedUser();
+  //       setCurrentUser((prevCurrentUser) => tempUser);
+  //     }
+  //   };
+  //   getUser();
+  // }, [isLoggedIn]);
+
   window.onbeforeunload = () => {
     localStorage.clear();
   };
 
   const sessionHandler = async (status) => {
-    setIsLoggedIn(status);
+    if (status) {
+      let tempUser = await Auth.currentAuthenticatedUser();
+      setCurrentUser((prevCurrentUser) => tempUser);
+      setIsLoggedIn(true);
+    }
   };
 
   const tabHandler = (e, newValue) => {
-    console.log(newValue);
     setSelectedTab(newValue);
   };
 
-  const registrationHandler = () => {};
+  const logoutHandler = (status) => {
+    if (status) {
+      Auth.signOut()
+        .then(() => {
+          setCurrentUser(null);
+          setIsLoggedIn(false);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  };
+
+  const registrationHandler = (isRegistered) => {
+    if (isRegistered) {
+      const verificationMessage =
+        "We sent a verification email to complete the registration. Please, confirm before signing in.";
+      setSelectedTab(0);
+      setSuccessMessage(verificationMessage);
+      setSuccessMessageOpen(true);
+      setTimeout(() => {
+        setSuccessMessage((prevErrorMessage) => "");
+        setSuccessMessageOpen(false);
+      }, [3000]);
+    }
+  };
 
   if (!isLoggedIn) {
     return (
@@ -93,17 +135,25 @@ function App() {
           </Tabs>
         </Paper>
         <TabPanel value={selectedTab} index={0}>
-          <Login status={isLoggedIn} onLogin={sessionHandler} />
+          <Login onLogin={sessionHandler} />
         </TabPanel>
         <TabPanel value={selectedTab} index={1}>
           <Registration onRegistration={registrationHandler} />
         </TabPanel>
+
+        <Message
+          message={successMessage}
+          type="success"
+          open={successMessageOpen}
+        />
       </div>
     );
   } else {
     return (
       <div className="App">
-        <Dashboard status={isLoggedIn} onLogout={sessionHandler} />
+        {currentUser && (
+          <Dashboard user={currentUser} onLogout={logoutHandler} />
+        )}
       </div>
     );
   }
